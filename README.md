@@ -24,6 +24,10 @@ If you are developing a production application, we recommend using TypeScript an
     Firebase setup
     Deploying our app to production
     Implemented Sign/SignUp firebase
+    Update Profile
+    Created Redux Store with userSlice
+    Implemented SignOut
+    Fetch from TMDB Movies
 
 # Features
     Login/Sign Up

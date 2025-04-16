@@ -1,17 +1,27 @@
 import React, { useState, useRef } from 'react';
 import Header from './Header';
 import { checkValidateData } from '../utils/validate';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
 import { auth } from '../utils/firebase';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Eye icons for password visibility
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/userSlice';
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [errors, setErrors] = useState({ email: null, password: null, api: null });
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const email = useRef(null);
   const password = useRef(null);
+  const name = useRef(null);
 
   const toggleSignIn = () => setIsSignIn(!isSignIn);
 
@@ -19,39 +29,52 @@ const Login = () => {
     const emailVal = email.current.value;
     const passwordVal = password.current.value;
 
-    // Validate email and password using checkValidateData
-    const emailError = checkValidateData(emailVal, passwordVal) === "Email is not valid" ? "Email is not valid" : null;
-    const passwordError = checkValidateData(emailVal, passwordVal) === "Password is not valid" ? "Password is not valid" : null;
+    const validationResult = checkValidateData(emailVal, passwordVal);
+    const emailError = validationResult === 'Email is not valid' ? validationResult : null;
+    const passwordError = validationResult === 'Password is not valid' ? validationResult : null;
 
-    setErrors({
-      email: emailError,
-      password: passwordError,
-      api: null,
-    });
+    setErrors({ email: emailError, password: passwordError, api: null });
 
-    // If there's any validation error, return early
     if (emailError || passwordError) return;
 
     try {
       if (isSignIn) {
-        // Sign In
-        const userCredential = await signInWithEmailAndPassword(auth, emailVal, passwordVal);
-        console.log("Signed In:", userCredential.user);
+        await signInWithEmailAndPassword(auth, emailVal, passwordVal);
+        navigate('/browse');
       } else {
-        // Sign Up
         const userCredential = await createUserWithEmailAndPassword(auth, emailVal, passwordVal);
-        console.log("Signed Up:", userCredential.user);
+
+        await updateProfile(userCredential.user, {
+          displayName: name.current.value,
+          photoURL:
+            'https://occ-0-3647-3646.1.nflxso.net/dnm/api/v6/vN7bi_My87NPKvsBoib006Llxzg/AAAABb7kuX9mKPrFGfvZ0oJ9eMBbFCB7ZhumT7uHIoILp1FtGpeIhybv8zoGgNK76rr7N8bMdhn-kkbRnD6ut8mFLwqYXmdpwCw.png?r=eea',
+        });
+
+        await auth.currentUser.reload(); // ensure updated user info is fetched
+
+        const updatedUser = auth.currentUser;
+        dispatch(
+          addUser({
+            uid: updatedUser.uid,
+            email: updatedUser.email,
+            displayName: updatedUser.displayName,
+            photoURL: updatedUser.photoURL,
+          })
+        );
+
+        navigate('/browse');
       }
     } catch (error) {
-      console.error("Firebase Error:", error);
-      setErrors({ api: "Invalid Email or Password" }); 
+      console.error('Firebase Error:', error);
+      setErrors({ email: null, password: null, api: 'Invalid Email or Password' });
     }
   };
 
   return (
     <div>
       <Header />
-      {/* Background Image */}
+
+      {/* Background */}
       <div className="absolute w-full h-full">
         <img
           className="w-full h-full object-cover"
@@ -66,17 +89,18 @@ const Login = () => {
         onSubmit={(e) => e.preventDefault()}
         className="w-3/12 absolute p-12 bg-black bg-opacity-75 my-26 mx-auto right-0 left-0 text-white rounded-md opacity-90"
       >
-        <h1 className="text-3xl font-bold mb-6">{isSignIn ? "Sign In" : "Sign Up"}</h1>
+        <h1 className="text-3xl font-bold mb-6">{isSignIn ? 'Sign In' : 'Sign Up'}</h1>
 
         {!isSignIn && (
           <input
+            ref={name}
             type="text"
             placeholder="Full Name"
             className="p-3 my-3 w-full bg-gray-800 rounded text-white"
           />
         )}
 
-        {/* Email Input */}
+        {/* Email */}
         <div className="relative">
           <input
             ref={email}
@@ -85,17 +109,15 @@ const Login = () => {
             className="p-3 my-3 w-full bg-gray-800 rounded text-white"
           />
           {errors.email && (
-            <p className="text-red-600 text-sm font-semibold ml-1">
-              {errors.email}
-            </p>
-          )}  
+            <p className="text-red-600 text-sm font-semibold ml-1">{errors.email}</p>
+          )}
         </div>
 
-        {/* Password Input */}
+        {/* Password */}
         <div className="relative">
           <input
             ref={password}
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             placeholder="Password"
             className="p-3 my-3 w-full bg-gray-800 rounded text-white pr-10"
           />
@@ -103,22 +125,23 @@ const Login = () => {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-white"
           >
-            {showPassword ? <FaEyeSlash /> : <FaEye />} 
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
           </div>
           {errors.password && (
-            <p className="text-red-600 text-sm font-semibold ml-1">
-              {errors.password}
-            </p>
+            <p className="text-red-600 text-sm font-semibold ml-1">{errors.password}</p>
           )}
         </div>
 
-        {errors.api && <p className="text-red-600 text-sm font-semibold ml-1">{errors.api}</p>} 
+        {errors.api && (
+          <p className="text-red-600 text-sm font-semibold ml-1">{errors.api}</p>
+        )}
 
+        {/* Submit */}
         <button
           className="p-3 my-6 bg-red-600 w-full rounded hover:bg-red-700 cursor-pointer font-semibold"
           onClick={handleButtonClick}
         >
-          {isSignIn ? "Sign In" : "Sign Up"}
+          {isSignIn ? 'Sign In' : 'Sign Up'}
         </button>
 
         <div className="flex justify-between items-center text-sm text-gray-400 mb-6">
@@ -132,9 +155,9 @@ const Login = () => {
         </div>
 
         <p className="text-sm text-gray-400 mb-1" onClick={toggleSignIn}>
-          {isSignIn ? "New to Netflix?" : "Already Registered?"}
+          {isSignIn ? 'New to Netflix?' : 'Already Registered?'}
           <span className="text-white hover:underline cursor-pointer font-bold px-1.5">
-            {isSignIn ? "Sign up now." : " Sign In"}
+            {isSignIn ? 'Sign up now.' : 'Sign In'}
           </span>
         </p>
 
