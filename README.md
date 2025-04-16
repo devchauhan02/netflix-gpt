@@ -14,10 +14,16 @@ If you are developing a production application, we recommend using TypeScript an
 
 # Configured TailwindCSS
 
+# Netflix GPT
     Header
     Routing of App
     Login Form
     Sign up Form
+    Form Validation
+    useRef Hook
+    Firebase setup
+    Deploying our app to production
+    Implemented Sign/SignUp firebase
 
 # Features
     Login/Sign Up
