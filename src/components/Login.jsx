@@ -8,15 +8,15 @@ import {
 } from 'firebase/auth';
 import { auth } from '../utils/firebase';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../utils/userSlice';
+import { DEFAULT_LOGO } from '../utils/constants';
 
 const Login = () => {
+
   const [isSignIn, setIsSignIn] = useState(true);
   const [errors, setErrors] = useState({ email: null, password: null, api: null });
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const email = useRef(null);
@@ -26,8 +26,9 @@ const Login = () => {
   const toggleSignIn = () => setIsSignIn(!isSignIn);
 
   const handleButtonClick = async () => {
+
     const emailVal = email.current.value;
-    const passwordVal = password.current.value;
+    const passwordVal = password.current.value;  
 
     const validationResult = checkValidateData(emailVal, passwordVal);
     const emailError = validationResult === 'Email is not valid' ? validationResult : null;
@@ -40,17 +41,15 @@ const Login = () => {
     try {
       if (isSignIn) {
         await signInWithEmailAndPassword(auth, emailVal, passwordVal);
-        navigate('/browse');
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, emailVal, passwordVal);
 
         await updateProfile(userCredential.user, {
           displayName: name.current.value,
-          photoURL:
-            'https://occ-0-3647-3646.1.nflxso.net/dnm/api/v6/vN7bi_My87NPKvsBoib006Llxzg/AAAABb7kuX9mKPrFGfvZ0oJ9eMBbFCB7ZhumT7uHIoILp1FtGpeIhybv8zoGgNK76rr7N8bMdhn-kkbRnD6ut8mFLwqYXmdpwCw.png?r=eea',
+          photoURL: DEFAULT_LOGO,
         });
 
-        await auth.currentUser.reload(); // ensure updated user info is fetched
+        await auth.currentUser.reload(); // ensure updated user info is fetched     
 
         const updatedUser = auth.currentUser;
         dispatch(
@@ -61,8 +60,6 @@ const Login = () => {
             photoURL: updatedUser.photoURL,
           })
         );
-
-        navigate('/browse');
       }
     } catch (error) {
       console.error('Firebase Error:', error);

@@ -28,6 +28,9 @@ If you are developing a production application, we recommend using TypeScript an
     Created Redux Store with userSlice
     Implemented SignOut
     Fetch from TMDB Movies
+    Fix bug - Redirect user to browse if logged in otherwise to login page
+    Unsubscribed to our onAuthStateChanged callback
+    Added Harcoded Values To The Constants File
 
 # Features
     Login/Sign Up
