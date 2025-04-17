@@ -7,6 +7,7 @@ const App = () => {
     <Provider store = {appStore}>
       <Body/>
     </Provider> 
+    
   )
 }
 export default App

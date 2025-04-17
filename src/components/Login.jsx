@@ -11,6 +11,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../utils/userSlice';
 import { DEFAULT_LOGO } from '../utils/constants';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
@@ -18,6 +19,7 @@ const Login = () => {
   const [errors, setErrors] = useState({ email: null, password: null, api: null });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const email = useRef(null);
   const password = useRef(null);
@@ -41,6 +43,7 @@ const Login = () => {
     try {
       if (isSignIn) {
         await signInWithEmailAndPassword(auth, emailVal, passwordVal);
+        navigate("/profile");
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, emailVal, passwordVal);
 

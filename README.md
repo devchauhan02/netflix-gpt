@@ -31,6 +31,11 @@ If you are developing a production application, we recommend using TypeScript an
     Fix bug - Redirect user to browse if logged in otherwise to login page
     Unsubscribed to our onAuthStateChanged callback
     Added Harcoded Values To The Constants File
+    Register for TMDB API & Get Access Token
+    Created a Movie slice 
+    Updated Store With Movies Data
+    Fetch Data For Trailer Video
+    Embedded the YT video
 
 # Features
     Login/Sign Up

@@ -50,7 +50,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="absolute w-screen px-12 py-2 bg-gradient-to-b from-black z-10 flex justify-between items-center">
+    <div className="overflow-x-hidden absolute w-screen px-12 py-2 bg-gradient-to-b from-black z-20 flex justify-between items-center">
       <img className="w-30" src={LOGO} alt="Netflix Logo" />
       {user && (
         <div
@@ -65,7 +65,7 @@ const Header = () => {
             }`}
           />
           {open && (
-            <div className="absolute right-0 top-12 w-60 bg-black text-white rounded-md shadow-lg py-2 z-20">
+            <div className="overflow-x-hidden absolute right-0 top-12 w-60 bg-black text-white rounded-md shadow-lg py-2 z-20">
               <div className="flex flex-col border-b border-gray-700 text-sm">
                 {Profile.map((profile, idx) => (
                   <div
